@@ -140,6 +140,8 @@ tr:hover{
     border-radius:20px;
     font-size:14px;
     font-weight:bold;
+    display:inline-block;
+    letter-spacing:0.02em;
 }
 
 .pending{
@@ -147,14 +149,49 @@ tr:hover{
     color:#92400e;
 }
 
-.diterima{
+.interview{
+    background:#dbeafe;
+    color:#1e3a8a;
+}
+
+.offered{
+    background:#cffafe;
+    color:#0f766e;
+}
+
+.diterima,
+.hired{
     background:#dcfce7;
     color:#166534;
 }
 
-.ditolak{
+.ditolak,
+.rejected{
     background:#fee2e2;
     color:#991b1b;
+}
+
+.input-group-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:16px;
+    margin-bottom:20px;
+}
+
+.input-group-item{
+    flex:1;
+    min-width:220px;
+}
+
+.readonly-input{
+    background:#eef2ff;
+    border-color:#c7d2fe;
+}
+
+.form-note{
+    color:#475569;
+    font-size:0.92rem;
+    margin-top:6px;
 }
 body{
     background:#f5f7fb;

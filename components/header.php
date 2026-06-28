@@ -8,6 +8,20 @@ if(!isset($_SESSION['id_user'])){
     exit;
 }
 
+// Pastikan status suspensi selalu diperiksa untuk session aktif
+include __DIR__ . "/../config/koneksi.php";
+$user_id = mysqli_real_escape_string($conn, $_SESSION['id_user']);
+$q = mysqli_query($conn, "SELECT is_suspended FROM users WHERE id_user='$user_id' LIMIT 1");
+if($q){
+    $user_status = mysqli_fetch_assoc($q);
+    if(!empty($user_status['is_suspended'])){
+        session_unset();
+        session_destroy();
+        header("Location: /LokerIn/auth/login.php?error=suspended");
+        exit;
+    }
+}
+
 // Sinkronisasi dengan potongan email depan dari sistem login baru
 $username_tampil = $_SESSION['username'] ?? $_SESSION['nama'] ?? 'User';
 $role_user = $_SESSION['role'] ?? 'pelamar';
@@ -122,11 +136,19 @@ $role_user = $_SESSION['role'] ?? 'pelamar';
         <?php } elseif($role_user == "perusahaan") { ?>
             <a href="/LokerIn/perusahaan/profil.php">Profil Perusahaan</a>
             <span style="color: rgba(255,255,255,0.5);">|</span>
-            <a href="/LokerIn/lowongan/index.php">Data Lowongan</a>
+            <a href="/LokerIn/lowongan/index.php">Daftar Lowongan</a>
             <span style="color: rgba(255,255,255,0.5);">|</span>
             <a href="/LokerIn/lamaran/daftar_pelamar.php">Daftar Pelamar</a>
         <?php } else { ?>
+            <a href="/LokerIn/users/dashboard.php">Dashboard</a>
+            <span style="color: rgba(255,255,255,0.5);">|</span>
             <a href="/LokerIn/users/index.php">Kelola User</a>
+            <span style="color: rgba(255,255,255,0.5);">|</span>
+            <a href="/LokerIn/users/all_pelamar.php">Daftar Pelamar</a>
+            <span style="color: rgba(255,255,255,0.5);">|</span>
+            <a href="/LokerIn/users/all_lamaran.php">Daftar Lamaran</a>
+            <span style="color: rgba(255,255,255,0.5);">|</span>
+            <a href="/LokerIn/users/all_lowongan.php">Daftar Lowongan</a>
         <?php } ?>
 
         <span style="color: rgba(255,255,255,0.5);">|</span>

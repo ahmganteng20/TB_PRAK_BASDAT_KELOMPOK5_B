@@ -20,28 +20,34 @@ if(isset($_POST['login'])){
     // Mencari user berdasarkan email dan password teks biasa
     $query = mysqli_query($conn, "SELECT * FROM users WHERE email='$email_input' AND password='$password'");
     
+$login_error = '';
 if(mysqli_num_rows($query) > 0){
         $user = mysqli_fetch_assoc($query);
         
-        $_SESSION['id_user']  = $user['id_user'];
-        $_SESSION['role']     = $user['role'];
-        
-        // ====================================================================
-        // TRIK MEMOTONG EMAIL UNTUK NAMA TAMPILAN NAVBAR & DASHBOARD
-        // ====================================================================
-        // Mengambil email asli dari database (contoh: faufau@gmail.com)
-        $email_user = $user['email']; 
-        
-        // Memotong teks dan mengambil karakter HANYA sebelum tanda '@' (menjadi: faufau)
-        $nama_dari_email = explode('@', $email_user)[0]; 
-        
-        // Daftarkan hasil potongan email tersebut ke dalam session nama & username
-        $_SESSION['nama']     = $nama_dari_email;
-        $_SESSION['username'] = $nama_dari_email;
-        // ====================================================================
+        if(isset($user['is_suspended']) && (int)$user['is_suspended'] === 1){
+            $login_error = 'Akun Anda saat ini sedang dinonaktifkan demi keamanan. Silakan hubungi tim layanan pelanggan kami untuk melakukan verifikasi.';
+        } else {
+            $_SESSION['id_user']      = $user['id_user'];
+            $_SESSION['role']         = $user['role'];
+            $_SESSION['is_suspended'] = (int)($user['is_suspended'] ?? 0);
+            
+            // ====================================================================
+            // TRIK MEMOTONG EMAIL UNTUK NAMA TAMPILAN NAVBAR & DASHBOARD
+            // ====================================================================
+            // Mengambil email asli dari database (contoh: faufau@gmail.com)
+            $email_user = $user['email']; 
+            
+            // Memotong teks dan mengambil karakter HANYA sebelum tanda '@' (menjadi: faufau)
+            $nama_dari_email = explode('@', $email_user)[0]; 
+            
+            // Daftarkan hasil potongan email tersebut ke dalam session nama & username
+            $_SESSION['nama']     = $nama_dari_email;
+            $_SESSION['username'] = $nama_dari_email;
+            // ====================================================================
 
-        header("Location: ../dashboard/index.php");
-        exit;
+            header("Location: ../dashboard/index.php");
+            exit;
+        }
     }
 }
 ?>
@@ -81,6 +87,10 @@ if(mysqli_num_rows($query) > 0){
 
         <button type="submit" name="login" class="btn-biru">Masuk / Login</button>
         
+        <?php if(!empty($login_error)): ?>
+            <p style="text-align: center; color: #d9534f; font-weight: bold; margin-top: 12px;"><?= htmlspecialchars($login_error); ?></p>
+        <?php endif; ?>
+
         <p style="text-align: center; font-size: 13px; color: #666; margin-top: 20px;">
             Belum punya akun? <a href="register.php" style="color: #007bff; text-decoration: none; font-weight: bold;">Daftar di sini</a>
         </p>

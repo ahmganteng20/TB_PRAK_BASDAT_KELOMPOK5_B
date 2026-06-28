@@ -13,6 +13,12 @@ if(isset($_POST['simpan'])){
     $alamat = mysqli_real_escape_string($conn, $_POST['alamat']);
     $telepon = mysqli_real_escape_string($conn, $_POST['telepon']);
 
+        // Validasi nomor telepon perusahaan: hanya angka, spasi, + dan -
+        if(!preg_match('/^[0-9+\s-]+$/', $telepon)){
+            echo "<script>alert('Nomor telepon tidak valid. Gunakan hanya angka, spasi, + atau -'); window.location='profil.php';</script>";
+            exit;
+        }
+
     $cek = mysqli_query($conn, "SELECT * FROM perusahaan WHERE id_user='$id_user'");
 
     if(mysqli_num_rows($cek) > 0){

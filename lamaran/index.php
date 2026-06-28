@@ -49,15 +49,14 @@ include "../components/header.php";
                 <td><?= date('d M Y, H:i', strtotime($row['tanggal_lamar'])); ?> WIB</td>
                 <td>
                     <?php
-                    // Pengondisian warna badge berdasarkan status lamaran pelamar
-                    if(strtolower($row['status_lamaran']) == "pending"){
-                        echo "<span style='background: #fff3cd; color: #856404; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; border: 1px solid #ffeeba;'>Pending</span>";
-                    }
-                    elseif(strtolower($row['status_lamaran']) == "diterima"){
+                    // Normalize to only three applicant-facing states: Pending, Diterima, Ditolak
+                    $s = strtolower($row['status_lamaran'] ?? '');
+                    if(in_array($s, ['diterima','hired','offered'])){
                         echo "<span style='background: #d4edda; color: #155724; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; border: 1px solid #c3e6cb;'>Diterima</span>";
-                    }
-                    else{
+                    } elseif(in_array($s, ['ditolak','rejected'])){
                         echo "<span style='background: #f8d7da; color: #721c24; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; border: 1px solid #f5c6cb;'>Ditolak</span>";
+                    } else {
+                        echo "<span style='background: #fff3cd; color: #856404; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; border: 1px solid #ffeeba;'>Pending</span>";
                     }
                     ?>
                 </td>

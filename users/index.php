@@ -12,12 +12,27 @@ if(!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'admin'){
     exit;
 }
 
+// Pastikan kolom is_suspended ada untuk menampilkan status suspend dan tombol unsuspend
+$col_check = mysqli_query($conn, "SHOW COLUMNS FROM users LIKE 'is_suspended'");
+if(!$col_check || mysqli_num_rows($col_check) === 0){
+    mysqli_query($conn, "ALTER TABLE users ADD COLUMN is_suspended TINYINT(1) NOT NULL DEFAULT 0");
+}
+
 // Mengambil nama tampilan dinamis dari session potongan email
 $username_tampil = $_SESSION['username'] ?? 'Admin';
 
-// =========================================================================
-// TRY-CATCH QUERY: Jika error, tampilkan detail pesan error dari MySQL kamu
-// =========================================================================
+$status_message = '';
+$error_message = '';
+if(!empty($_GET['status'])){
+    if($_GET['status'] === 'suspended') $status_message = 'Akun berhasil disuspend.';
+    if($_GET['status'] === 'unsuspended') $status_message = 'Suspensi akun berhasil dibatalkan.';
+    if($_GET['status'] === 'failed') $error_message = 'Gagal memproses aksi suspend/unsuspend. Periksa kembali data user dan parameter aksi.';
+}
+if(!empty($_GET['error'])){
+    if($_GET['error'] === 'toggle_fail') $error_message = 'Terjadi kesalahan saat memperbarui status pengguna. Silakan coba lagi.';
+    if($_GET['error'] === 'not_found') $error_message = 'Pengguna tidak ditemukan.';
+}
+
 $query = mysqli_query($conn, "SELECT * FROM users ORDER BY id_user DESC");
 
 if (!$query) {
@@ -39,6 +54,12 @@ if (!$query) {
     
     <div style="display: flex; align-items: center; gap: 20px;">
         <a href="../users/index.php" style="color: white; text-decoration: none; font-size: 14px; font-weight: bold;">Kelola User</a>
+        <span style="color: rgba(255,255,255,0.5);">|</span>
+        <a href="all_pelamar.php" style="color: white; text-decoration: none; font-size: 14px; font-weight: bold;">Daftar Pelamar</a>
+        <span style="color: rgba(255,255,255,0.5);">|</span>
+        <a href="all_lowongan.php" style="color: white; text-decoration: none; font-size: 14px; font-weight: bold;">Daftar Lowongan</a>
+        <span style="color: rgba(255,255,255,0.5);">|</span>
+        <a href="all_lamaran.php" style="color: white; text-decoration: none; font-size: 14px; font-weight: bold;">Daftar Lamaran</a>
         
         <span style="color: rgba(255,255,255,0.5);">|</span>
         <span style="background: rgba(255,255,255,0.2); color: white; padding: 4px 12px; border-radius: 4px; font-size: 14px; font-weight: bold;">
@@ -54,6 +75,17 @@ if (!$query) {
     <p style="color: #666; margin-bottom: 20px;">
         Halaman khusus Administrator untuk memantau status, melakukan verifikasi berkas, atau menangguhkan akun pengguna yang melanggar ketentuan platform.
     </p>
+
+    <?php if($status_message): ?>
+        <div style="background: #d4edda; color: #155724; padding: 12px 16px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
+            <?= htmlspecialchars($status_message); ?>
+        </div>
+    <?php endif; ?>
+    <?php if($error_message): ?>
+        <div style="background: #f8d7da; color: #721c24; padding: 12px 16px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #f5c6cb;">
+            <?= htmlspecialchars($error_message); ?>
+        </div>
+    <?php endif; ?>
 
     <table class="table-tema" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
         <thead>
@@ -96,15 +128,30 @@ if (!$query) {
                         <?php endif; ?>
                     </td>
                     <td style="padding: 12px;">
-                        <span style="background: #d4edda; color: #155724; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">Aktif</span>
+                        <?php $suspended = isset($row['is_suspended']) ? (int)$row['is_suspended'] : 0; ?>
+                        <?php if($suspended): ?>
+                            <span style="display:inline-flex; align-items:center; justify-content:center; min-height:28px; background:#f8d7da; color:#721c24; padding:0 12px; border-radius:12px; font-size:13px; font-weight:700;">Ditangguhkan</span>
+                        <?php else: ?>
+                            <span style="display:inline-flex; align-items:center; justify-content:center; min-height:28px; background:#d4edda; color:#155724; padding:0 12px; border-radius:12px; font-size:13px; font-weight:700;">Aktif</span>
+                        <?php endif; ?>
                     </td>
                     <td style="padding: 12px;">
-                        <?php if($role_user !== 'admin'): ?>
-                            <button style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px;" onclick="alert('Simulasi: Akun <?= htmlspecialchars($user); ?> berhasil ditangguhkan sementara demi keamanan.')">
-                                Suspensi Akun
-                            </button>
+                        <?php if($id == $_SESSION['id_user']): ?>
+                            <span style="color: #999; font-size: 13px; font-style: italic;">Tidak bisa suspensi diri sendiri</span>
                         <?php else: ?>
-                            <span style="color: #999; font-size: 13px; font-style: italic;">Utama</span>
+                            <?php if($suspended): ?>
+                                <form method="POST" action="toggle_suspend.php" style="display:inline; margin:0; padding:0;">
+                                    <input type="hidden" name="id" value="<?= $id; ?>">
+                                    <input type="hidden" name="action" value="unsuspend">
+                                    <button type="submit" style="background:#28a745; color:#fff; padding:0 12px; min-height:28px; border-radius:12px; border:none; cursor:pointer; font-size:13px; font-weight:700; text-align:center;" onclick="return confirm('Batalkan suspensi akun ini?');">Batalkan Suspensi</button>
+                                </form>
+                            <?php else: ?>
+                                <form method="POST" action="toggle_suspend.php" style="display:inline; margin:0; padding:0;">
+                                    <input type="hidden" name="id" value="<?= $id; ?>">
+                                    <input type="hidden" name="action" value="suspend">
+                                    <button type="submit" style="background:#dc3545; color:#fff; padding:0 12px; min-height:28px; border-radius:12px; border:none; cursor:pointer; font-size:13px; font-weight:700; text-align:center;" onclick="return confirm('Apakah Anda yakin ingin mensuspensi akun ini?');">Suspensi Akun</button>
+                                </form>
+                            <?php endif; ?>
                         <?php endif; ?>
                     </td>
                 </tr>

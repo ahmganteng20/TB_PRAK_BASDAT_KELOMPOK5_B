@@ -51,9 +51,11 @@ include "../components/header.php";
 <?php if($role == "admin"){ ?>
     <h3 style="color: #1e3d73; margin-bottom: 15px;">Menu Manajemen Administrator:</h3>
     <ul style="line-height: 2.2; color: #495057; font-size: 15px; padding-left: 20px;">
-        <li>Suspensi dan verifikasi akun pengguna di menu <b>Kelola User</b></li>
-        <li>Pantau dan turunkan lowongan kerja bermasalah di menu <b>Moderasi Lowongan</b></li>
-        <li>Pantau statistik total aktivitas platform di menu <b>Laporan & Dashboard Analitik</b></li>
+        <li>Kelola semua akun pengguna di menu <b>Kelola User</b></li>
+        <li>Lihat dan moderasi daftar pelamar di menu <b>Daftar Pelamar</b></li>
+        <li>Lihat, edit, dan hapus daftar lowongan di menu <b>Daftar Lowongan</b></li>
+        <li>Lihat daftar lamaran dan ubah status di menu <b>Daftar Lamaran</b></li>
+        <li>Pantau statistik platform di menu <b>Laporan & Dashboard Analitik</b></li>
     </ul>
 <?php } ?>
 

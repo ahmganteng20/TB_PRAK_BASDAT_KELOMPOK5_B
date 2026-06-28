@@ -11,7 +11,20 @@ if(!isset($_SESSION['id_user'])){
 $role = $_SESSION['role'];
 
 // Ambil semua data lowongan diurutkan dari yang terbaru
-$data = mysqli_query($conn, "SELECT * FROM lowongan ORDER BY id_lowongan DESC");
+if($role == 'pelamar'){
+    $data = mysqli_query($conn, "SELECT * FROM lowongan WHERE (LOWER(status)='open' OR status='Open') AND kuota>0 ORDER BY id_lowongan DESC");
+} elseif($role == 'perusahaan'){
+    $user_id = mysqli_real_escape_string($conn, $_SESSION['id_user']);
+    $company = mysqli_fetch_assoc(mysqli_query($conn, "SELECT id_perusahaan FROM perusahaan WHERE id_user='$user_id' LIMIT 1"));
+    if($company){
+        $company_id = (int)$company['id_perusahaan'];
+        $data = mysqli_query($conn, "SELECT * FROM lowongan WHERE id_perusahaan='$company_id' ORDER BY id_lowongan DESC");
+    } else {
+        $data = mysqli_query($conn, "SELECT * FROM lowongan WHERE 1=0");
+    }
+} else {
+    $data = mysqli_query($conn, "SELECT * FROM lowongan ORDER BY id_lowongan DESC");
+}
 
 // 1. PANGGIL HEADER GLOBAL
 include "../components/header.php"; 
