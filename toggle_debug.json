@@ -1,0 +1,55 @@
+[
+    {
+        "query": "SHOW COLUMNS FROM users LIKE 'is_suspended'",
+        "result": {
+            "rows": 1,
+            "data": [
+                {
+                    "Field": "is_suspended",
+                    "Type": "tinyint(1)",
+                    "Null": "NO",
+                    "Key": "",
+                    "Default": "0",
+                    "Extra": ""
+                }
+            ]
+        }
+    },
+    {
+        "query": "SELECT id_user, email, role, is_suspended FROM users ORDER BY id_user DESC LIMIT 10",
+        "result": {
+            "rows": [
+                {
+                    "id_user": "8",
+                    "email": "one@gmail.com",
+                    "role": "pelamar",
+                    "is_suspended": "0"
+                },
+                {
+                    "id_user": "7",
+                    "email": "1@gmail.com",
+                    "role": "pelamar",
+                    "is_suspended": "0"
+                },
+                {
+                    "id_user": "3",
+                    "email": "faufau@gmail.com",
+                    "role": "pelamar",
+                    "is_suspended": "0"
+                },
+                {
+                    "id_user": "2",
+                    "email": "majujaya@gmail.com",
+                    "role": "perusahaan",
+                    "is_suspended": "0"
+                },
+                {
+                    "id_user": "1",
+                    "email": "admin@gmail.com",
+                    "role": "admin",
+                    "is_suspended": "0"
+                }
+            ]
+        }
+    }
+]
