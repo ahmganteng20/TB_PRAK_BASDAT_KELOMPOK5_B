@@ -16,6 +16,7 @@
 
 
 -- Dumping database structure for job_portal
+DROP DATABASE IF EXISTS `job_portal`;
 CREATE DATABASE IF NOT EXISTS `job_portal` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */;
 USE `job_portal`;
 
@@ -27,13 +28,15 @@ CREATE TABLE IF NOT EXISTS `lamaran` (
   `id_lowongan` int(11) DEFAULT NULL,
   `tanggal_lamar` date DEFAULT NULL,
   `status_lamaran` enum('pending','diterima','ditolak') DEFAULT 'pending',
+  `cv_path` varchar(255) DEFAULT NULL,
+  `catatan_hr` text DEFAULT NULL,
   PRIMARY KEY (`id_lamaran`),
   UNIQUE KEY `pelamar_lowongan_unique` (`id_pelamar`,`id_lowongan`),
   KEY `id_pelamar` (`id_pelamar`),
   KEY `id_lowongan` (`id_lowongan`),
   CONSTRAINT `lamaran_ibfk_1` FOREIGN KEY (`id_pelamar`) REFERENCES `pelamar` (`id_pelamar`) ON DELETE CASCADE,
   CONSTRAINT `lamaran_ibfk_2` FOREIGN KEY (`id_lowongan`) REFERENCES `lowongan` (`id_lowongan`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Dumping data for table job_portal.lamaran: ~0 rows (approximately)
 
@@ -47,14 +50,17 @@ CREATE TABLE IF NOT EXISTS `lowongan` (
   `kuota` int(11) DEFAULT NULL,
   `status` enum('open','closed') DEFAULT 'open',
   `tanggal_posting` date DEFAULT NULL,
+  `pendidikan` varchar(255) DEFAULT NULL,
+  `pengalaman` varchar(100) DEFAULT NULL,
+  `skill` text DEFAULT NULL,
+  `usia` varchar(50) DEFAULT NULL,
+  `lokasi` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id_lowongan`),
   KEY `id_perusahaan` (`id_perusahaan`),
   CONSTRAINT `lowongan_ibfk_1` FOREIGN KEY (`id_perusahaan`) REFERENCES `perusahaan` (`id_perusahaan`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Dumping data for table job_portal.lowongan: ~1 rows (approximately)
-INSERT INTO `lowongan` (`id_lowongan`, `id_perusahaan`, `judul_lowongan`, `deskripsi`, `kuota`, `status`, `tanggal_posting`) VALUES
-	(1, 1, 'Frontend Developer', 'Menguasai HTML CSS', 1, 'open', '2026-06-07');
+-- Dumping data for table job_portal.lowongan: ~0 rows (approximately)
 
 -- Dumping structure for table job_portal.pelamar
 DROP TABLE IF EXISTS `pelamar`;
@@ -64,15 +70,21 @@ CREATE TABLE IF NOT EXISTS `pelamar` (
   `nama_lengkap` varchar(100) DEFAULT NULL,
   `no_hp` varchar(20) DEFAULT NULL,
   `alamat` text DEFAULT NULL,
+  `is_complete` tinyint(1) NOT NULL DEFAULT 0,
+  `kabupaten_kota` varchar(255) DEFAULT NULL,
+  `kode_pos` varchar(20) DEFAULT NULL,
+  `pendidikan` varchar(255) DEFAULT NULL,
+  `pengalaman` text DEFAULT NULL,
+  `keahlian` text DEFAULT NULL,
   PRIMARY KEY (`id_pelamar`),
   UNIQUE KEY `id_user_2` (`id_user`),
   KEY `id_user` (`id_user`),
   CONSTRAINT `pelamar_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `users` (`id_user`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Dumping data for table job_portal.pelamar: ~1 rows (approximately)
-INSERT INTO `pelamar` (`id_pelamar`, `id_user`, `nama_lengkap`, `no_hp`, `alamat`) VALUES
-	(1, 3, 'Fauziah Zaenudin', '089876543211', 'Garut');
+INSERT INTO `pelamar` (`id_pelamar`, `id_user`, `nama_lengkap`, `no_hp`, `alamat`, `is_complete`, `kabupaten_kota`, `kode_pos`, `pendidikan`, `pengalaman`, `keahlian`) VALUES
+	(1, 3, 'Fauziah Zaenudin', '089876543211', 'Garut', 1, NULL, NULL, NULL, NULL, NULL);
 
 -- Dumping structure for table job_portal.perusahaan
 DROP TABLE IF EXISTS `perusahaan`;
@@ -99,15 +111,16 @@ CREATE TABLE IF NOT EXISTS `users` (
   `email` varchar(100) DEFAULT NULL,
   `password` varchar(100) DEFAULT NULL,
   `role` enum('admin','perusahaan','pelamar') DEFAULT NULL,
+  `is_suspended` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id_user`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- Dumping data for table job_portal.users: ~3 rows (approximately)
-INSERT INTO `users` (`id_user`, `email`, `password`, `role`) VALUES
-	(1, 'admin@gmail.com', '123', 'admin'),
-	(2, 'majujaya@gmail.com', '456', 'perusahaan'),
-	(3, 'faufau@gmail.com', '789', 'pelamar');
+INSERT INTO `users` (`id_user`, `email`, `password`, `role`, `is_suspended`) VALUES
+	(1, 'admin@gmail.com', '123', 'admin', 0),
+	(2, 'majujaya@gmail.com', '456', 'perusahaan', 0),
+	(3, 'faufau@gmail.com', '789', 'pelamar', 0);
 
 -- Dumping structure for trigger job_portal.cek_kuota_lowongan
 DROP TRIGGER IF EXISTS `cek_kuota_lowongan`;

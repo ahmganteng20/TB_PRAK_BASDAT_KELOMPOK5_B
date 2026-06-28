@@ -110,8 +110,14 @@ if (!$query) {
             <?php while($row = mysqli_fetch_assoc($query)){ ?>
                 <?php 
                     $id = $row['id_user'] ?? $row['id'] ?? '0';
-                    $user = $row['username'] ?? $row['nama'] ?? 'User';
                     $email = $row['email'] ?? '-';
+                    $user = $row['username'] ?? $row['nama'] ?? null;
+                    if(empty($user) && !empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)){
+                        $local = strtolower(substr($email, 0, strpos($email, '@')));
+                        $local = preg_replace('/[._-]+/', ' ', $local);
+                        $user = ucwords(trim($local));
+                    }
+                    $user = $user ?: 'User';
                     $role_user = $row['role'] ?? 'pelamar';
                 ?>
                 <tr style="border-bottom: 1px solid #eee;">

@@ -46,7 +46,7 @@ if(isset($_POST['simpan'])){
     exit;
 }
 
-$data = mysqli_query($conn, "SELECT pel.*, u.email FROM pelamar pel LEFT JOIN users u ON pel.id_user=u.id_user WHERE pel.id_user='$id_user'");
+$data = mysqli_query($conn, "SELECT pel.*, u.email FROM users u LEFT JOIN pelamar pel ON u.id_user=pel.id_user WHERE u.id_user='$id_user'");
 $cek = mysqli_fetch_assoc($data);
 
 // 1. MEMANGGIL HEADER GLOBAL (Otomatis load CSS Tema, Navbar, Container, dan Card Putih)
